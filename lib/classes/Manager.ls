@@ -1,7 +1,8 @@
 require! \./Service.ls
 
 module.exports = class Manager
-  ({@own_account_id, @location, @license, @api_account_id, @api_account_password, @api_version})->
+  ({@own_account_id, @location, @license, @api_account_id, @api_account_password, @api_version, @max_requests})->
+    Service.max_requests = @max_requests
   get_collocation: (cb)->
     if @collocation? => cb null, that; return
     location_service = new Service (

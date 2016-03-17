@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "prelude-ls": "^1.1.2",
-    "soap": "^0.13.0"
+    "soap": "^0.13.0",
+    "wait": "^0.1.0"
   }
 }

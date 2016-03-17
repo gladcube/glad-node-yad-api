@@ -1,6 +1,9 @@
-require! <[soap]>
+require! <[wait soap]>
+{wait} = wait
 
 module.exports = class Service
+  @current_requests = 0
+  @max_requests = 10
   ({@name, @collocation, @location, @license, @api_account_id, @api_account_password, @api_version})->
   url:~ -> @_url ?= "https://#{@location}/services/#{@api_version}/#{@name}?wsdl"
   endpoint:~ ->
@@ -24,12 +27,27 @@ module.exports = class Service
           api-account-password: @api_account_password
       ), "", "tns"
     cb err, client
+  start_request: (cb)->
+    if @@current_requests >= @@max_requests
+      <~ wait 500
+      @start_request cb
+    else
+      @@current_requests += 1
+      console.log @@current_requests
+      cb!
+  finish_request: (cb)->
+    @@current_requests -= 1
+    cb!
+  execute: (method, args, cb)->
+    err, client <~ @get_client
+    <~ @start_request
+    err, res <~ client.(method) args
+    <~ @finish_request
+    cb err, res
   get: (args, cb)->
-    err, client <- @get_client
-    client.get args, cb
+    @execute \get, args, cb
   mutate: (args, cb)->
-    err, client <- @get_client
-    client.mutate args, cb
+    @execute \mutate, args, cb
   add: (body, cb)->
     @mutate (
       operations: [
