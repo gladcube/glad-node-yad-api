@@ -33,17 +33,13 @@ module.exports = class Service
       @start_request cb
     else
       @@current_requests += 1
-      console.log @@current_requests
       cb!
-  finish_request: (cb)->
-    @@current_requests -= 1
-    cb!
+      <~ wait 1000
+      @@current_requests -= 1
   execute: (method, args, cb)->
     err, client <~ @get_client
     <~ @start_request
-    err, res <~ client.(method) args
-    <~ @finish_request
-    cb err, res
+    client.(method) args, cb
   get: (args, cb)->
     @execute \get, args, cb
   mutate: (args, cb)->
