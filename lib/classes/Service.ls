@@ -2,9 +2,7 @@ require! <[wait soap]>
 {wait} = wait
 
 module.exports = class Service
-  @current_requests = 0
-  @max_requests = 10
-  ({@name, @collocation, @location, @license, @api_account_id, @api_account_password, @api_version})->
+  ({@name, @collocation, @location, @license, @api_account_id, @api_account_password, @api_version, @manager})->
   url:~ -> @_url ?= "https://#{@location}/services/#{@api_version}/#{@name}?wsdl"
   endpoint:~ ->
     @_endpoint ?=
@@ -27,18 +25,9 @@ module.exports = class Service
           api-account-password: @api_account_password
       ), "", "tns"
     cb err, client
-  start_request: (cb)->
-    if @@current_requests >= @@max_requests
-      <~ wait 500
-      @start_request cb
-    else
-      @@current_requests += 1
-      cb!
-      <~ wait 1000
-      @@current_requests -= 1
   execute: (method, args, cb)->
     err, client <~ @get_client
-    <~ @start_request
+    <~ @manager.start_request
     client.(method) args, cb
   get: (args, cb)->
     @execute \get, args, cb

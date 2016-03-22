@@ -8,5 +8,6 @@ module.exports =
     api_account_id
     api_account_password
     api_version
+    max_requests
   }:consts)->
     new Manager consts
